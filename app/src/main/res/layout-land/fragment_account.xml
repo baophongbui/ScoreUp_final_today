@@ -76,8 +76,15 @@
                         android:textSize="18dp"
                         />
 
-                    <!-- Reset Password Section -->
-
+                    <Button
+                        android:id="@+id/btnInstruction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat"
+                        android:backgroundTint="#1d267d"
+                        android:layout_marginTop="100dp"
+                        android:layout_gravity="center"
+                        android:text="Instruction" />
                     <!-- Current Password -->
 
                     <!-- New Password -->

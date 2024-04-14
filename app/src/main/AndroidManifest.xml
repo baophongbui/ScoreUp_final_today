@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ScoreUp">
         <activity
+            android:name=".Instruction"
+            android:exported="false" />
+        <activity
             android:name=".SatDetail"
             android:exported="false" />
         <activity
