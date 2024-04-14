@@ -40,15 +40,14 @@ public class QuizzRVAdapter extends RecyclerView.Adapter<QuizzRVAdapter.QuizzVie
         holder.numQuestion.setText(numQuestion.get(position));
         holder.constraintLayout.setOnClickListener(v -> {
             if (position == 0){
-                Toast.makeText(context2,"1",Toast.LENGTH_SHORT).show();
 //                Intent intent = new Intent(context2,Quizz.class);
 //                context2.startActivity(intent);
 
             } else if (position == 1){
-                Toast.makeText(context2,"2",Toast.LENGTH_SHORT).show();
+
 
             } else if (position == 2){
-                Toast.makeText(context2,"3",Toast.LENGTH_SHORT).show();
+
 
             }
         });

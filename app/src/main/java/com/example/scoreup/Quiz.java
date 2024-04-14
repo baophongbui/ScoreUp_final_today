@@ -136,6 +136,13 @@ public class Quiz extends AppCompatActivity {
         List<Question> questions = dbHelper.getAllQuestions();
         Collections.shuffle(questions);
         makeRequestPart5(token);
+        makeRequestPart1(token);
+        makeRequestPart2(token);
+        makeRequestPart3(token);
+        makeRequestPart4(token);
+        makeRequestPart6(token);
+        makeRequestPart7(token);
+
         initializeResponseStorage();
     }
     private void initializeResponseStorage() {
@@ -307,11 +314,15 @@ public class Quiz extends AppCompatActivity {
 
         int buttonSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 38, getResources().getDisplayMetrics());
 
+        HashMap<String, HashMap<Integer, Button>> partQuestionButtonMap = new HashMap<>();
+
         for (String part : selectedParts) {
             int numberOfQuestions = getNumberOfQuestionsForPart(part);
+
             totalQues += numberOfQuestions;
             MenuItem partItem = selectedPartsSubMenu.add(part).setOnMenuItemClickListener(item -> {
-                loadQuestionsForPart(item.getTitle().toString());
+                currentQuestionIndex = 1;
+                displayQuestion();
                 return true;
             });
 
@@ -333,6 +344,9 @@ public class Quiz extends AppCompatActivity {
             LinearLayout currentRow = null;
             int buttonCount = 0;
 
+            // Step 2: Create a new HashMap to store buttons by question
+            HashMap<Integer, Button> questionButtonMap = new HashMap<>();
+
             for (int i = 0; i < numberOfQuestions; i++) {
                 final int index = i + 1;
                 if (buttonCount % 6 == 0) {
@@ -351,22 +365,24 @@ public class Quiz extends AppCompatActivity {
                 GradientDrawable defaultBackground = createDrawable("#9ba4b5");
                 GradientDrawable selectedBackground = createDrawable("#6a5be2");
                 button.setBackground(defaultBackground);
-
                 button.setOnClickListener(v -> {
-                    if (currentQuestionIndex != index) {
-                        Button previousButton = (Button) linearLayout.findViewWithTag(currentQuestionIndex);
-                        if (previousButton != null) {
-                            previousButton.setBackground(defaultBackground);
-                        }
+                    currentQuestionIndex = index;
+                    displayQuestion();
+                    if(button.getBackground() == defaultBackground) {
                         button.setBackground(selectedBackground);
-                        currentQuestionIndex = index;
-                        displayQuestion();
+                    } else {
+                        button.setBackground(defaultBackground);
                     }
                 });
+                // Step 3: Add the button to the questionButtonMap
+                questionButtonMap.put(index, button);
 
                 currentRow.addView(button);
                 buttonCount++;
             }
+
+            // Step 4: Add the questionButtonMap to the partQuestionButtonMap
+            partQuestionButtonMap.put(part, questionButtonMap);
 
             View actionView = partItem.getActionView();
             if (actionView != null) {
@@ -434,7 +450,7 @@ public class Quiz extends AppCompatActivity {
     private void makeRequestPart5(String token) {
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, "{\n    \"notionDatabaseId\": \"ba1ea74a570842ab9d46c6fd62772b83\",\n    \"tag\": \"part_5\",\n    \"limit\": 1000,\n    \"multiQuestions\": true\n}");
+        RequestBody body = RequestBody.create(mediaType, "{\n    \"notionDatabaseId\": \"ba1ea74a570842ab9d46c6fd62772b83\",\n    \"tag\": \"part_5\",\n    \"limit\": 200,\n    \"multiQuestions\": true\n}");
         Request request = new Request.Builder()
                 .url("https://foliastudy.com/exam/api/v1/api/questions")
                 .method("POST", body)
@@ -485,8 +501,331 @@ public class Quiz extends AppCompatActivity {
             }
         });
     }
+    private void makeRequestPart1(String token) {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, "{\n    \"notionDatabaseId\": \"ba1ea74a570842ab9d46c6fd62772b83\",\n    \"tag\": \"part_5\",\n    \"limit\": 200,\n    \"multiQuestions\": true\n}");
+        Request request = new Request.Builder()
+                .url("https://foliastudy.com/exam/api/v1/api/questions")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + token )
+                .build();
 
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> questionTextView.setText("Request failed: " + e.getMessage()));
+            }
 
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        StringBuilder questionsInfo = new StringBuilder();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            JSONArray questionsArray = item.getJSONArray("questions");
+                            for (int j = 0; j < questionsArray.length(); j++) {
+                                JSONObject question = questionsArray.getJSONObject(j);
+                                String questionText = question.getJSONObject("properties").getJSONObject("question").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerA = question.getJSONObject("properties").getJSONObject("A").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerB = question.getJSONObject("properties").getJSONObject("B").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerC = question.getJSONObject("properties").getJSONObject("C").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerD = question.getJSONObject("properties").getJSONObject("D").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String ansCorrect = question.getJSONObject("properties").getJSONObject("correct").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+
+                                Question questionsP5 = new Question("Part 1", questionText, answerA, answerB, answerC, answerD, ansCorrect);
+                                correctAnswers.add(ansCorrect);
+                                dbHelper.addQuestion(questionsP5);
+                            }
+                        }
+
+                        runOnUiThread(() -> questionTextView.setText(Html.fromHtml(questionsInfo.toString(), Html.FROM_HTML_MODE_LEGACY)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> questionTextView.setText("JSON parsing error: " + e.getMessage()));
+                    }
+                } else {
+                    runOnUiThread(() -> questionTextView.setText("Error: " + response.code() + " " + response.message()));
+                }
+            }
+        });
+    }
+    private void makeRequestPart2(String token) {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, "{\n    \"notionDatabaseId\": \"ba1ea74a570842ab9d46c6fd62772b83\",\n    \"tag\": \"part_5\",\n    \"limit\": 200,\n    \"multiQuestions\": true\n}");
+        Request request = new Request.Builder()
+                .url("https://foliastudy.com/exam/api/v1/api/questions")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + token )
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> questionTextView.setText("Request failed: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        StringBuilder questionsInfo = new StringBuilder();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            JSONArray questionsArray = item.getJSONArray("questions");
+                            for (int j = 0; j < questionsArray.length(); j++) {
+                                JSONObject question = questionsArray.getJSONObject(j);
+                                String questionText = question.getJSONObject("properties").getJSONObject("question").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerA = question.getJSONObject("properties").getJSONObject("A").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerB = question.getJSONObject("properties").getJSONObject("B").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerC = question.getJSONObject("properties").getJSONObject("C").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerD = question.getJSONObject("properties").getJSONObject("D").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String ansCorrect = question.getJSONObject("properties").getJSONObject("correct").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+
+                                Question questionsP5 = new Question("Part 2", questionText, answerA, answerB, answerC, answerD, ansCorrect);
+                                correctAnswers.add(ansCorrect);
+                                dbHelper.addQuestion(questionsP5);
+                            }
+                        }
+
+                        runOnUiThread(() -> questionTextView.setText(Html.fromHtml(questionsInfo.toString(), Html.FROM_HTML_MODE_LEGACY)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> questionTextView.setText("JSON parsing error: " + e.getMessage()));
+                    }
+                } else {
+                    runOnUiThread(() -> questionTextView.setText("Error: " + response.code() + " " + response.message()));
+                }
+            }
+        });
+    }
+
+    private void makeRequestPart3(String token) {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, "{\n    \"notionDatabaseId\": \"ba1ea74a570842ab9d46c6fd62772b83\",\n    \"tag\": \"part_5\",\n    \"limit\": 200,\n    \"multiQuestions\": true\n}");
+        Request request = new Request.Builder()
+                .url("https://foliastudy.com/exam/api/v1/api/questions")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + token )
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> questionTextView.setText("Request failed: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        StringBuilder questionsInfo = new StringBuilder();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            JSONArray questionsArray = item.getJSONArray("questions");
+                            for (int j = 0; j < questionsArray.length(); j++) {
+                                JSONObject question = questionsArray.getJSONObject(j);
+                                String questionText = question.getJSONObject("properties").getJSONObject("question").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerA = question.getJSONObject("properties").getJSONObject("A").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerB = question.getJSONObject("properties").getJSONObject("B").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerC = question.getJSONObject("properties").getJSONObject("C").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerD = question.getJSONObject("properties").getJSONObject("D").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String ansCorrect = question.getJSONObject("properties").getJSONObject("correct").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+
+                                Question questionsP5 = new Question("Part 3", questionText, answerA, answerB, answerC, answerD, ansCorrect);
+                                correctAnswers.add(ansCorrect);
+                                dbHelper.addQuestion(questionsP5);
+                            }
+                        }
+
+                        runOnUiThread(() -> questionTextView.setText(Html.fromHtml(questionsInfo.toString(), Html.FROM_HTML_MODE_LEGACY)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> questionTextView.setText("JSON parsing error: " + e.getMessage()));
+                    }
+                } else {
+                    runOnUiThread(() -> questionTextView.setText("Error: " + response.code() + " " + response.message()));
+                }
+            }
+        });
+    }
+    private void makeRequestPart4(String token) {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, "{\n    \"notionDatabaseId\": \"ba1ea74a570842ab9d46c6fd62772b83\",\n    \"tag\": \"part_5\",\n    \"limit\": 200,\n    \"multiQuestions\": true\n}");
+        Request request = new Request.Builder()
+                .url("https://foliastudy.com/exam/api/v1/api/questions")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + token )
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> questionTextView.setText("Request failed: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        StringBuilder questionsInfo = new StringBuilder();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            JSONArray questionsArray = item.getJSONArray("questions");
+                            for (int j = 0; j < questionsArray.length(); j++) {
+                                JSONObject question = questionsArray.getJSONObject(j);
+                                String questionText = question.getJSONObject("properties").getJSONObject("question").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerA = question.getJSONObject("properties").getJSONObject("A").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerB = question.getJSONObject("properties").getJSONObject("B").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerC = question.getJSONObject("properties").getJSONObject("C").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerD = question.getJSONObject("properties").getJSONObject("D").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String ansCorrect = question.getJSONObject("properties").getJSONObject("correct").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+
+                                Question questionsP5 = new Question("Part 4", questionText, answerA, answerB, answerC, answerD, ansCorrect);
+                                correctAnswers.add(ansCorrect);
+                                dbHelper.addQuestion(questionsP5);
+                            }
+                        }
+
+                        runOnUiThread(() -> questionTextView.setText(Html.fromHtml(questionsInfo.toString(), Html.FROM_HTML_MODE_LEGACY)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> questionTextView.setText("JSON parsing error: " + e.getMessage()));
+                    }
+                } else {
+                    runOnUiThread(() -> questionTextView.setText("Error: " + response.code() + " " + response.message()));
+                }
+            }
+        });
+    }
+    private void makeRequestPart6(String token) {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, "{\n    \"notionDatabaseId\": \"ba1ea74a570842ab9d46c6fd62772b83\",\n    \"tag\": \"part_5\",\n    \"limit\": 200,\n    \"multiQuestions\": true\n}");
+        Request request = new Request.Builder()
+                .url("https://foliastudy.com/exam/api/v1/api/questions")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + token )
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> questionTextView.setText("Request failed: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        StringBuilder questionsInfo = new StringBuilder();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            JSONArray questionsArray = item.getJSONArray("questions");
+                            for (int j = 0; j < questionsArray.length(); j++) {
+                                JSONObject question = questionsArray.getJSONObject(j);
+                                String questionText = question.getJSONObject("properties").getJSONObject("question").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerA = question.getJSONObject("properties").getJSONObject("A").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerB = question.getJSONObject("properties").getJSONObject("B").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerC = question.getJSONObject("properties").getJSONObject("C").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerD = question.getJSONObject("properties").getJSONObject("D").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String ansCorrect = question.getJSONObject("properties").getJSONObject("correct").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+
+                                Question questionsP5 = new Question("Part 6", questionText, answerA, answerB, answerC, answerD, ansCorrect);
+                                correctAnswers.add(ansCorrect);
+                                dbHelper.addQuestion(questionsP5);
+                            }
+                        }
+
+                        runOnUiThread(() -> questionTextView.setText(Html.fromHtml(questionsInfo.toString(), Html.FROM_HTML_MODE_LEGACY)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> questionTextView.setText("JSON parsing error: " + e.getMessage()));
+                    }
+                } else {
+                    runOnUiThread(() -> questionTextView.setText("Error: " + response.code() + " " + response.message()));
+                }
+            }
+        });
+    }
+    private void makeRequestPart7(String token) {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, "{\n    \"notionDatabaseId\": \"ba1ea74a570842ab9d46c6fd62772b83\",\n    \"tag\": \"part_5\",\n    \"limit\": 200,\n    \"multiQuestions\": true\n}");
+        Request request = new Request.Builder()
+                .url("https://foliastudy.com/exam/api/v1/api/questions")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + token )
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> questionTextView.setText("Request failed: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        StringBuilder questionsInfo = new StringBuilder();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            JSONArray questionsArray = item.getJSONArray("questions");
+                            for (int j = 0; j < questionsArray.length(); j++) {
+                                JSONObject question = questionsArray.getJSONObject(j);
+                                String questionText = question.getJSONObject("properties").getJSONObject("question").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerA = question.getJSONObject("properties").getJSONObject("A").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerB = question.getJSONObject("properties").getJSONObject("B").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerC = question.getJSONObject("properties").getJSONObject("C").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String answerD = question.getJSONObject("properties").getJSONObject("D").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+                                String ansCorrect = question.getJSONObject("properties").getJSONObject("correct").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
+
+                                Question questionsP5 = new Question("Part 7", questionText, answerA, answerB, answerC, answerD, ansCorrect);
+                                correctAnswers.add(ansCorrect);
+                                dbHelper.addQuestion(questionsP5);
+                            }
+                        }
+
+                        runOnUiThread(() -> questionTextView.setText(Html.fromHtml(questionsInfo.toString(), Html.FROM_HTML_MODE_LEGACY)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> questionTextView.setText("JSON parsing error: " + e.getMessage()));
+                    }
+                } else {
+                    runOnUiThread(() -> questionTextView.setText("Error: " + response.code() + " " + response.message()));
+                }
+            }
+        });
+    }
     private int getNumberOfQuestionsForPart(String part) {
         // Implement logic to get number of questions for each part
         if ("Part 1".equals(part)) {

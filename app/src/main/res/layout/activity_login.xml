@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@color/white"
     android:paddingHorizontal="16dp"
     android:orientation="vertical">
 
@@ -53,12 +54,13 @@
             android:id="@+id/btnRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#1d267d"
-            android:layout_marginEnd="30dp"
-            android:fontFamily="@font/montserrat"
-
             android:layout_below="@id/editTextPassword"
+            android:layout_marginEnd="30dp"
+            android:backgroundTint="#808080"
+
+            android:fontFamily="@font/montserrat"
             android:text="Register" />
+
         <Button
             android:id="@+id/buttonLogin"
             android:layout_width="wrap_content"

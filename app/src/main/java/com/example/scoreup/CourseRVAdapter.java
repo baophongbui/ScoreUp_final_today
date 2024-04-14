@@ -50,33 +50,24 @@ public class CourseRVAdapter extends RecyclerView.Adapter<CourseRVAdapter.Course
         holder.imgCourse.setImageResource(img.get(position));
         holder.fulltest.setOnClickListener(v -> {
             if (position == 0){
-                Toast.makeText(context,"1",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context,MainActivityQuiz.class);
                 context.startActivity(intent);
 
             } else if (position == 1){
-                Toast.makeText(context,"2",Toast.LENGTH_SHORT).show();
-
-            } else if (position == 2){
-                Toast.makeText(context,"3",Toast.LENGTH_SHORT).show();
 
             }
         });
         holder.details.setOnClickListener(v -> {
             if (position == 0){
-                Toast.makeText(context,"1",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context, ToeicCert.class);
                 context.startActivity(intent);
 
             } else if (position == 1){
-                Toast.makeText(context,"2",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context, SatCert.class);
                 context.startActivity(intent);
 
-            } else if (position == 2){
-                Toast.makeText(context,"3",Toast.LENGTH_SHORT).show();
-
             }
+
         });
     }
 

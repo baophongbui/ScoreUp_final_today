@@ -116,6 +116,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:padding="4dp"
+                                        android:fontFamily="@font/montserrat"
                                         android:text="999"
                                         android:textColor="@color/white" />
                                 </androidx.cardview.widget.CardView>
@@ -202,6 +203,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:padding="4dp"
+                                        android:fontFamily="@font/montserrat"
                                         android:text="999"
                                         android:textColor="@color/white" />
                                 </androidx.cardview.widget.CardView>
@@ -212,6 +214,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
+                                android:fontFamily="@font/montserrat"
+
                                 android:text="TOEIC (Speaking and Writing) "
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
@@ -220,7 +224,9 @@
                                 android:id="@+id/textView41"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Time: 80 \n Total questions: 19 (Speaking:11, Writing:8 ) \n Max score: 400"
+                                android:fontFamily="@font/montserrat"
+
+                                android:text="Time: 80 \nTotal questions: 19 (Speaking:11, Writing:8 ) \nMax score: 400"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
@@ -228,12 +234,16 @@
                                 android:id="@+id/textView51"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/montserrat"
+
                                 android:text="The Test of English for International Communication (TOEIC) is an international standardized test of English language proficiency for non-native speakers. It is intentionally designed to measure..." />
 
                             <Button
                                 android:id="@+id/button0"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/montserrat"
+
                                 android:backgroundTint="#1d267d"
                                 android:text="Learn more" />
                         </LinearLayout>

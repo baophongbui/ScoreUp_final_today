@@ -29,16 +29,6 @@
                 android:text=""
                 />
 
-            <TextView
-                android:id="@+id/btnNotification"
-                android:layout_width="27dp"
-                android:layout_height="27dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/notification"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <EditText
                 android:id="@+id/edtSearch"
                 android:layout_width="500dp"
