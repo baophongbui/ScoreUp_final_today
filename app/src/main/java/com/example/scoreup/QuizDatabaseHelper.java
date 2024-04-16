@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuizDatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "toeic_quiz_001.db";
+    private static final String DATABASE_NAME = "toeic_quiz_5261.db";
     private static final int DATABASE_VERSION = 1;
 
     public static final String TABLE_NAME = "questions";

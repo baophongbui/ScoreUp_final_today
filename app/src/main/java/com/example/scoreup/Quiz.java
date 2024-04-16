@@ -321,6 +321,7 @@ public class Quiz extends AppCompatActivity {
 
             totalQues += numberOfQuestions;
             MenuItem partItem = selectedPartsSubMenu.add(part).setOnMenuItemClickListener(item -> {
+                loadQuestionsForPart(part);
                 currentQuestionIndex = 1;
                 displayQuestion();
                 return true;
@@ -477,16 +478,8 @@ public class Quiz extends AppCompatActivity {
                             JSONArray questionsArray = item.getJSONArray("questions");
                             for (int j = 0; j < questionsArray.length(); j++) {
                                 JSONObject question = questionsArray.getJSONObject(j);
-                                String questionText = question.getJSONObject("properties").getJSONObject("question").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
-                                String answerA = question.getJSONObject("properties").getJSONObject("A").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
-                                String answerB = question.getJSONObject("properties").getJSONObject("B").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
-                                String answerC = question.getJSONObject("properties").getJSONObject("C").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
-                                String answerD = question.getJSONObject("properties").getJSONObject("D").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
                                 String ansCorrect = question.getJSONObject("properties").getJSONObject("correct").getJSONArray("rich_text").getJSONObject(0).getJSONObject("text").getString("content");
-
-                                Question questionsP5 = new Question("Part 5", questionText, answerA, answerB, answerC, answerD, ansCorrect);
                                 correctAnswers.add(ansCorrect);
-                                dbHelper.addQuestion(questionsP5);
                             }
                         }
 
